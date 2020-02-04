@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
-import * as PDFJS from "pdfjs-dist";
+
+declare let pdfjsLib: any;
 /*
   Generated class for the PdfjsProvider provider.
 
@@ -42,8 +43,8 @@ export class PdfjsProvider {
     canvasContainer = document.createElement("DIV")
   ) {
     options = { scale: 1 };
-    PDFJS.disableWorker = true;
-    let pdfDoc = await PDFJS.getDocument(url);
+    pdfjsLib.disableWorker = true;
+    let pdfDoc = await pdfjsLib.getDocument(url).promise;
     this.renderPages(pdfDoc, options, canvasContainer);
     canvasContainer.style.overflow = "auto";
     return canvasContainer;
@@ -51,10 +52,12 @@ export class PdfjsProvider {
 
   findAndReplacePdf(element) {
     let pdf = Array.from(element.getElementsByClassName("pdfemb-viewer"));
-    pdf.forEach((pdfRender: any) => {
+    pdf.forEach(async (pdfRender: any) => {
       let parent, pdfDom;
       parent = pdfRender.parentElement;
-      pdfDom = this.renderPDF(pdfRender.href);
+      pdfDom = await this.renderPDF(pdfRender.href);
+      console.log("pdfDom", pdfDom);
+      console.log("pdfRender", pdfRender);
       parent.replaceChild(pdfDom, pdfRender);
     });
   }
